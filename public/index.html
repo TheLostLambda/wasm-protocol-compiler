@@ -2,22 +2,148 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="generator" content="GitLab Pages">
-    <title>Plain HTML site using GitLab Pages</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Hello wasm-pack!</title>
+    <!-- Yeah, maybe don't do this... -->
+    <style>
+      body {
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr 3em 3em 2fr;
+        grid-template-rows: 1fr 3em 1fr;
+        grid-template-areas: 
+          "c c . . p"
+          ". . b b ."
+          "o g g g g";
+      }
+      #config {
+        grid-area: c;
+      }
+      #protocol {
+        grid-area: p;
+      }
+      #compile {
+        grid-area: b;
+      }
+      #output {
+        grid-area: o;
+      }
+      #graph-div {
+        grid-area: g
+      }
+    </style>
   </head>
   <body>
-    <div class="navbar">
-      <a href="https://pages.gitlab.io/plain-html/">Plain HTML Example</a>
-      <a href="https://gitlab.com/pages/plain-html/">Repository</a>
-      <a href="https://gitlab.com/pages/">Other Examples</a>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <script src="./bootstrap.js"></script>
+    <textarea id="config">
+target = "growbotics"
+output_columns = ["time", "light", "temp", "humid", "water"]
+
+[[systems]]
+name = "light"
+command_type = "Setpoint"
+
+[[systems]]
+name = "temp"
+command_type = "Setpoint"
+
+[[systems]]
+name = "humid"
+command_type = "Setpoint"
+
+[[systems]]
+name = "water"
+command_type = "Action"
+    </textarea>
+    <textarea id="protocol">
+# Protocol Metadata
+name = "Arabidopsis"
+version = 4.0
+doi = "10.1000/xyz123"
+date = 2020-06-25
+author = "Brooks J Rady"
+length = 60
+
+[units]
+light = "pfd"
+temp  = "C"
+humid = "%"
+water = "ml"
+
+# Day-by-day Setpoints
+[[setpoints]]
+name = "Stratification"
+day = 0
+light = 0
+temp  = 6
+humid = 100
+water = 100
+
+[[setpoints]]
+day = 1
+water = 0
+
+[[setpoints]]
+name = "Germination"
+day = 4
+light = 70
+temp  = 22
+humid = 90
+
+[[setpoints]]
+name = "Vegetative growth"
+day = 10
+light = 150
+humid = 60
+water = 50
+
+[[setpoints]]
+day = 20
+water = 100
+
+[[setpoints]]
+name = "Flowering"
+day = 48
+humid = 40
+water = 50
+
+[[setpoints]]
+name = "Silique ripening"
+day = 53
+water = 0
+
+[[setpoints]]
+day = 63
+
+# Daily Breakdown
+# FIXME: Carry over the functions, but reset on the start of each day
+[[periods]]
+name = "Light Period"
+start = 08:00:00
+
+[[periods]]
+start = 08:30:00
+water = "0.5 * sp"
+
+[[periods]]
+during_stages = ["Germination", "Vegetative growth"]
+start = 12:00:00
+humid = "(setpoint + 20) / 2"
+
+[[periods]]
+start = 16:30:00
+water = "setpoint / 2"
+
+[[periods]]
+name = "Dark Period"
+start = 20:00:00
+light = "0"
+temp  = "sp - 5"
+    </textarea>
+    <button id="compile">Compile</button>
+    <textarea id="output"></textarea>
+    <div id="graph-div">
+      <canvas id="graph"></canvas>
     </div>
-
-    <h1>Hello World!</h1>
-
-    <p>
-      This is a simple plain-HTML website on GitLab Pages, without any fancy static site generator.
-    </p>
   </body>
 </html>
-
